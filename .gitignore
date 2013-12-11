@@ -1,0 +1,16 @@
+_*
+.cabal-sandbox
+cabal.sandbox.config
+dist
+cabal-dev
+*.hi
+*.o
+.sass-cache
+.*.swp
+*~
+.DS_Store
+.last_multi_watched
+site
+preview
+
+
