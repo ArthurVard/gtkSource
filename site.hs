@@ -30,7 +30,7 @@ main = hakyll $ do
         route $ setExtension "html"
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/post.html"    postCtx
-            >>= loadAndApplyTemplate "templates/default.html" postCtx
+            >>= loadAndApplyTemplate "templates/default.html" postCtx1
             >>= relativizeUrls
 
     create ["archive.html"] $ do
@@ -71,21 +71,29 @@ postCtx =
     dateField "date" "%B %e, %Y" `mappend`
     defaultContext
 
---context for archive, or any generated file to process with default.hetml temaplate
-indexarchiveCtx postToken ps =
-      listField postToken  postCtx (return ps) `mappend`
-      constField "title" "Archive"                `mappend`
-      constField "mainselection" " "            `mappend`
-      constField "aboutselection" " "            `mappend`
-      constField "contactselection" " "            `mappend`
-      constField "archiveselection" "class='selected'"            `mappend`
+postCtx1 =
+      constField "mainselection" " "    `mappend`
+      constField "aboutselection" " "   `mappend`
+      constField "contactselection" " " `mappend`
+      constField "archiveselection" " " `mappend`
       defaultContext
 
+
+      --context for archive, or any generated file to process with default.hetml temaplate
+indexarchiveCtx postToken ps =
+        listField postToken  postCtx (return ps)         `mappend`
+        constField "title" "Archive"                     `mappend`
+        constField "mainselection" " "                   `mappend`
+        constField "aboutselection" " "                  `mappend`
+        constField "contactselection" " "                `mappend`
+        constField "archiveselection" "class='selected'" `mappend`
+        defaultContext
+
 mainindexCtx postToken ps =
-      listField postToken  postCtx (return ps) `mappend`
-      constField "title" "Home"                `mappend`
-      constField "mainselection" "class='selected'"            `mappend`
-      constField "aboutselection" " "            `mappend`
-      constField "contactselection" " "            `mappend`
-      constField "archiveselection" " "            `mappend`
-      defaultContext
+          listField postToken  postCtx (return ps)      `mappend`
+          constField "title" "Home"                     `mappend`
+          constField "mainselection" "class='selected'" `mappend`
+          constField "aboutselection" " "               `mappend`
+          constField "contactselection" " "             `mappend`
+          constField "archiveselection" " "             `mappend`
+          defaultContext
