@@ -20,7 +20,7 @@ library
   -- exposed-modules:     
   -- other-modules:       
   -- other-extensions:    
-executable methodblog
+executable gtk.am
   main-is:             site.hs
   ghc-options:         -O2 -Wall
     

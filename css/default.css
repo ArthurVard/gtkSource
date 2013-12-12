@@ -1,39 +1,86 @@
 body {
-    color: black;
-    font-size: 16px;
-    margin: 0px auto 0px auto;
-    width: 600px;
+        margin: 0px auto 0px auto;
+	width: 900px;
+	font-family:Arial, Helvetica,"Arial AMU";
 }
 
-div#header {
-    border-bottom: 2px solid black;
-    margin-bottom: 30px;
-    padding: 12px 0px 12px 0px;
+/*index styles*/
+#top{
+    width:100%;
+    overflow:hidden;
+    border-bottom:6px solid #000099;
+    display:block;
+    margin-top:30px;
 }
 
-div#logo a {
-    color: black;
-    float: left;
-    font-size: 18px;
-    font-weight: bold;
-    text-decoration: none;
+#mainNav{
+    margin-top:21px;
+    width:100%;
+}
+#mainNav ul {
+    margin-left:23px;
+}
+#mainNav ul li{
+    float:left;
+}
+#mainNav ul li a{
+    text-decoration:none;
+    color:#333;
+    display:block;
+    padding: 10px 21px;
+    margin-right:1px;
+    font-size:15px;
 }
 
-div#header #navigation {
-    text-align: right;
+#mainNav ul li a:hover{
+    color:#fff;
+    background:#000099;
 }
 
-div#header #navigation a {
-    color: black;
-    font-size: 18px;
-    font-weight: bold;
-    margin-left: 12px;
-    text-decoration: none;
-    text-transform: uppercase;
+#mainNav ul li a.selected{
+    color:#fff;
+    background:#000099;
+    
 }
 
-div#footer {
-    border-top: solid 2px black;
+ol, ul {
+  list-style:none;
+}
+
+.logo{
+    width:155px;
+    height:55px;
+    background:url(../images/logo.jpg) left no-repeat;
+    float:left;
+    margin-right:15px;
+    margin-bottom:1px;
+}
+
+#footer ul li{
+	float:left;
+	font-size:12px;
+	color:#333333;
+	margin-right:15px;
+	border-right:1px solid #666666;
+	padding-right:15px;
+	
+}
+
+
+
+#footer ul li a{
+	text-decoration:none;
+	color:#333333
+}
+
+#footer ul li a:hover{
+	color:#000000;
+	}
+
+
+
+#footer {
+    border-top:6px solid #E8E8E8;
     color: #555;
     font-size: 12px;
     margin-top: 30px;
@@ -41,16 +88,9 @@ div#footer {
     text-align: right;
 }
 
-h1 {
-    font-size: 24px;
+#footerHR
+{
+    border-top:2px solid #E8E8E8;
+    margin: 20px 0px 0px 0px;
 }
 
-h2 {
-    font-size: 20px;
-}
-
-div.info {
-    color: #555;
-    font-size: 14px;
-    font-style: italic;
-}
