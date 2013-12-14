@@ -4,15 +4,21 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title>My Hakyll Blog - $title$</title>
+        <title>ԳԹԿ - Գնահատման և Թեստավորման Կենտրոն | $title$</title>
+	<link rel="shortcut icon" href="/favicon.png">
         <link rel="stylesheet" type="text/css" href="/css/default.css" />
     </head>
     <body>
-      $partial("templates/header.html")$
+      $partial("templates/headerclean.html")$
       <div id="content">
         <h1>$title$</h1>
         $body$
+	<br>
+	  <h5>Tags</h5>
+          $tagcloud$
       </div>
       $partial("templates/footer.html")$
+
+      
     </body>
 </html>
