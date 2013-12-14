@@ -1,6 +1,9 @@
 ---
 title: Rosa Rosa Rosam
 author: Ovidius
+date: 2007-01-28
+tags: fiction, sovsemurishtag
+metadescription: A very strange story by Chromatic Leaves blogger Eric Rasmussen
 ---
 
 Suspendisse pharetra ullamcorper sem et auctor. Suspendisse vitae tellus eu

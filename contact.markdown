@@ -1,5 +1,5 @@
 ---
-title: Contact
+title: Կոնտակներ
 mainselection: 
 aboutselection: 
 contactselection: class="selected" 

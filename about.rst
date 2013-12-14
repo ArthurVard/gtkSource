@@ -1,5 +1,5 @@
 ---
-title: About
+title: Մեր Մասին
 mainselection:  
 aboutselection: class="selected"
 contactselection: 

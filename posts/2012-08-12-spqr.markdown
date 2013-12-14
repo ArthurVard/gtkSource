@@ -1,5 +1,8 @@
 ---
 title: S.P.Q.R.
+date: 2007-01-28
+tags: fiction
+metadescription: A very strange story by Chromatic Leaves blogger Eric Rasmussen
 ---
 
 Mauris in lorem nisl. Maecenas tempus facilisis ante, eget viverra nisl

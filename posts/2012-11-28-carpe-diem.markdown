@@ -1,5 +1,8 @@
 ---
 title: Carpe Diem
+date: 2007-01-28
+tags: uroshtag
+metadescription: A very strange story by Chromatic Leaves blogger Eric Rasmussen
 ---
 
 Fusce tortor quam, egestas in posuere quis, porttitor vel turpis. Donec

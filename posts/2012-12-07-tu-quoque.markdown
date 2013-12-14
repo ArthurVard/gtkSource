@@ -1,6 +1,9 @@
 ---
 title: Tu Quoque
 author: Julius
+date: 2007-01-28
+tags: fiction
+metadescription: A very strange story by Chromatic Leaves blogger Eric Rasmussen
 ---
 
 Vestibulum leo turpis, dignissim quis ultrices sit amet, iaculis ac ligula.
