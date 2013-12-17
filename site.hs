@@ -9,7 +9,7 @@ import           Data.Maybe (fromMaybe)
 import           Data.Time.Format (formatTime)
 import           Data.Time.Clock (getCurrentTime)
 import           System.Locale (defaultTimeLocale)
-
+import           System.FilePath.Posix  (takeBaseName)
 
 --------------------------------------------------------------------------------
 main :: IO ()
@@ -53,10 +53,10 @@ main = do
 
    -- render menu pages
     match "pages/unifiedexams/*" $ do
-        route idRoute
+        route $ customRoute $ (++ ".html") . takeBaseName . toFilePath
         compile $ pandocCompiler
-            >>= loadAndApplyTemplate "templates/unifiedexams.html"    defaultContext
-            >>= loadAndApplyTemplate "templates/default.html" baseCtx --postCtx1
+            >>= loadAndApplyTemplate "templates/unifiedexams.html"   (makePageCtx tags)
+            >>= loadAndApplyTemplate "templates/base.html" (makeBasePageCtx year) --postCtx1
             >>= relativizeUrls         
 
     -- render each of the individual posts
@@ -132,6 +132,20 @@ makeDefaultCtx year tags = mconcat
   , constField "title"  "ggg"
   , tagCloudCtx tags
   ]
+
+-- | Creates the base page context
+makeBasePageCtx :: String -> Context String
+makeBasePageCtx year = mconcat
+  [ defaultContext
+  , yearCtx     year
+  ]  
+
+-- | Creates the default/menu pages context used on all menu pages
+makePageCtx :: Tags -> Context String
+makePageCtx tags = mconcat
+  [ defaultContext
+  , tagCloudCtx tags
+  ]  
 
 postCtx :: Context String
 postCtx =
