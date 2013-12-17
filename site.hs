@@ -28,7 +28,7 @@ main = do
         route   idRoute
         compile copyFileCompiler
    
-    match "css/*" $ do
+    match ("css/*" .||. "css/icons/*" .||. "foundation/*") $ do
         route   idRoute
         compile compressCssCompiler
 
@@ -50,6 +50,14 @@ main = do
         compile $ pandocCompiler
             >>= applyBase
             >>= relativizeUrls
+
+   -- render menu pages
+    match "pages/unifiedexams/*" $ do
+        route idRoute
+        compile $ pandocCompiler
+            >>= loadAndApplyTemplate "templates/unifiedexams.html"    defaultContext
+            >>= loadAndApplyTemplate "templates/default.html" baseCtx --postCtx1
+            >>= relativizeUrls         
 
     -- render each of the individual posts
     match "posts/*" $ do

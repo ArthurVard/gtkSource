@@ -1,24 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+	  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title>ԳԹԿ - Գնահատման և Թեստավորման Կենտրոն | $title$</title>
-	<link rel="shortcut icon" href="/favicon.png">
-        <link rel="stylesheet" type="text/css" href="/css/default.css" />
-    </head>
-    <body>
-      $partial("templates/headerclean.html")$
-      <div id="content">
-        <h1>$title$</h1>
-        $body$
-	<br>
-	  <h5>Tags</h5>
-          $tagcloud$
-      </div>
-      $partial("templates/footer.html")$
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>ԳԹԿ - Գնահատման և Թեստավորման Կենտրոն | $title$</title>
+    <link rel="stylesheet" href="/foundation/normalize.css">
+      <link rel="stylesheet" href="/foundation/foundation.css">
+        <link rel="stylesheet" type="text/css" href="/css/style.css" />
+      </head>
+      <body>
 
-      
-    </body>
-</html>
+	$partial("templates/headerclean.html")$
+
+	
+
+	<!-- Main Page Content and Sidebar -->
+
+	<div class="row">
+	  
+	  <!-- Main Blog Content -->
+	  <div class="large-9 columns content" role="content">
+	    <div class="large-12 columns">
+              <h1>$title$</h1>
+	      
+	    </div>
+	    $body$
+	  </div>
+
+	  <!-- End Main Content -->
+
+
+	  <!-- Sidebar -->
+
+	  <aside class="large-3 columns right">
+
+	    <h5>Explore</h5>
+	    <ul class="side-nav">
+              <li><a href="/explore/tea.html">Tea</a></li>
+              <li><a href="/explore/music.html">Music</a></li>
+              <li><a href="/explore/code.html">Code</a></li>
+              <li><a href="/posts.html">Archive</a></li>
+              <li><a href="/about.html">About</a></li>
+	    </ul>
+
+	    <h5>Tags</h5>
+
+            $tagcloud$
+
+
+	  </aside>
+
+	  <!-- End Sidebar -->
+	</div>
+
+	<!-- End Main Content and Sidebar -->
+
+
+
+	$partial("templates/footer.html")$
+      </body>
+    </html>
