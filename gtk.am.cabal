@@ -28,3 +28,4 @@ executable gtk.am
                      , hakyll     >= 4.4.1 && < 5
                      , old-locale >= 1.0.0.4	
                      , time       >= 1.4
+                     , filepath   >= 1.3

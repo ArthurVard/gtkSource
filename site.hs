@@ -32,16 +32,21 @@ main = do
         route   idRoute
         compile compressCssCompiler
 
-
+    let convertNonAscii "միասնական" = "miasnakan"
+        convertNonAscii x = x 
+       
     -- build tags
     tags <- buildTags "posts/*" (fromCapture "tags/*.html")
+    pageTags <- buildTags "pages/unifiedexams/*" (fromCapture "tags/*.html" . convertNonAscii)
 
      -- base.html needs a year, tag cloud, and the defaults (title/body)
     let baseCtx   = makeDefaultCtx year tags
-    let applyBase = loadAndApplyTemplate "templates/default.html" baseCtx
+    let applyBase = loadAndApplyTemplate "templates/base.html" baseCtx
 
     -- create a specialized post context to handle individual post tags
     let postCtx    = defaultPostCtx tags
+
+    let pageCtx    = defaultPostCtx  pageTags
 
     
     -- our only root level static page
@@ -55,7 +60,8 @@ main = do
     match "pages/unifiedexams/*" $ do
         route $ customRoute $ (++ ".html") . takeBaseName . toFilePath
         compile $ pandocCompiler
-            >>= loadAndApplyTemplate "templates/unifiedexams.html"   (makePageCtx tags)
+            >>= saveSnapshot "content"  
+            >>= loadAndApplyTemplate "templates/unifiedexams.html"   (makePageCtx pageTags)
             >>= loadAndApplyTemplate "templates/base.html" (makeBasePageCtx year) --postCtx1
             >>= relativizeUrls         
 
@@ -76,6 +82,19 @@ main = do
              
             posts <- constField "posts" <$> postList pattern postCtx recentFirst
             let ctxx = mconcat  [constField "title" title , baseCtx ]
+            makeItem ""
+                >>= loadAndApplyTemplate "templates/posts.html"  posts
+                >>= loadAndApplyTemplate "templates/default.html"  ctxx
+                >>= relativizeUrls
+                
+    -- pages listings by tag
+    tagsRules pageTags $ \tag pattern -> do
+        let title = "Pages tagged &#8216;" ++ tag ++ "&#8217;"
+        route idRoute
+        compile $ do
+             
+            posts <- constField "posts" <$> postList pattern pageCtx recentFirst
+            let ctxx = mconcat  [constField "title" title , (makeDefaultCtx year pageTags) ]
             makeItem ""
                 >>= loadAndApplyTemplate "templates/posts.html"  posts
                 >>= loadAndApplyTemplate "templates/default.html"  ctxx
@@ -143,8 +162,10 @@ makeBasePageCtx year = mconcat
 -- | Creates the default/menu pages context used on all menu pages
 makePageCtx :: Tags -> Context String
 makePageCtx tags = mconcat
-  [ defaultContext
+  [ 
+    tagsField "tags" tags
   , tagCloudCtx tags
+  , defaultContext
   ]  
 
 postCtx :: Context String
@@ -216,3 +237,4 @@ postList pattern postCtx sortFilter = do
     posts   <- sortFilter =<< loadAll pattern
     itemTpl <- loadBody "templates/post-item.html"
     applyTemplateList itemTpl postCtx posts
+
