@@ -9,7 +9,10 @@ import           Data.Maybe (fromMaybe)
 import           Data.Time.Format (formatTime)
 import           Data.Time.Clock (getCurrentTime)
 import           System.Locale (defaultTimeLocale)
-import           System.FilePath.Posix  (takeBaseName)
+import           System.FilePath.Posix  (takeBaseName, splitDirectories, (</>)
+                                                     , addExtension, addExtension
+                                                     , replaceExtension)
+import           Data.Char (toLower)
 
 --------------------------------------------------------------------------------
 main :: IO ()
@@ -32,12 +35,10 @@ main = do
         route   idRoute
         compile compressCssCompiler
 
-    let convertNonAscii "միասնական" = "miasnakan"
-        convertNonAscii x = x 
-       
     -- build tags
     tags <- buildTags "posts/*" (fromCapture "tags/*.html")
-    pageTags <- buildTags "pages/unifiedexams/*" (fromCapture "tags/*.html" . convertNonAscii)
+    pageTags <- buildTags ("pages/unifiedexam/*/*" .||. "pages/unifiedexam/*")
+                          (fromCapture "tags/*.html" . convertToLat)
 
      -- base.html needs a year, tag cloud, and the defaults (title/body)
     let baseCtx   = makeDefaultCtx year tags
@@ -56,15 +57,32 @@ main = do
             >>= applyBase
             >>= relativizeUrls
 
-   -- render menu pages
-    match "pages/unifiedexams/*" $ do
-        route $ customRoute $ (++ ".html") . takeBaseName . toFilePath
+   
+    let processPagesRoute root path = root </>  year </> (replaceExtension fileName "html")
+                                        where fileName =  last (splitDirectories path)
+                                              year | length (splitDirectories path) < 4  = ""
+                                                   | otherwise = last $ init (splitDirectories path)
+                                                    
+
+    -- render unifiedexams menu pages
+    match ("pages/unifiedexam/*/*"  .||. "pages/unifiedexam/*") $ do
+        route $ customRoute $  (processPagesRoute "exam") .  toFilePath 
         compile $ pandocCompiler
             >>= saveSnapshot "content"  
             >>= loadAndApplyTemplate "templates/unifiedexams.html"   (makePageCtx pageTags)
             >>= loadAndApplyTemplate "templates/base.html" (makeBasePageCtx year) --postCtx1
-            >>= relativizeUrls         
+            >>= relativizeUrls
+            
+    -- render currentexams menu pages
+    match "pages/currentexam/*/*" $ do
+        route $ customRoute $ ("exam/"++) .  (processPagesRoute "exam") .  toFilePath 
+        compile $ pandocCompiler
+            >>= saveSnapshot "content"  
+            >>= loadAndApplyTemplate "templates/unifiedexams.html"   (makePageCtx pageTags)
+            >>= loadAndApplyTemplate "templates/base.html" (makeBasePageCtx year)
+            >>= relativizeUrls   
 
+  
     -- render each of the individual posts
     match "posts/*" $ do
         route $ setExtension "html"
@@ -237,4 +255,52 @@ postList pattern postCtx sortFilter = do
     posts   <- sortFilter =<< loadAll pattern
     itemTpl <- loadBody "templates/post-item.html"
     applyTemplateList itemTpl postCtx posts
+
+
+
+armToLat 'ա' = "a"
+armToLat 'բ' = "b"
+armToLat 'գ' = "g"
+armToLat 'դ' = "d"
+armToLat 'ե' = "e"
+armToLat 'զ' = "z"
+armToLat 'է' = "e"
+armToLat 'ը' = "y"
+armToLat 'թ' = "t"
+armToLat 'ժ' = "j"
+armToLat 'ի' = "i"
+armToLat 'լ' = "l"
+armToLat 'խ' = "kh"
+armToLat 'ծ' = "ts"
+armToLat 'կ' = "k"
+armToLat 'հ' = "h"
+armToLat 'ձ' = "dz"
+armToLat 'ղ' = "gh"
+armToLat 'ճ' = "j"
+armToLat 'մ' = "m"
+armToLat 'յ' = "y"
+armToLat 'ն' = "n"
+armToLat 'շ' = "sh"
+armToLat 'ո' = "o"
+armToLat 'չ' = "ch"
+armToLat 'պ' = "p"
+armToLat 'ջ' = "j"
+armToLat 'ռ' = "r"
+armToLat 'ս' = "s"
+armToLat 'վ' = "v"
+armToLat 'տ' = "t"
+armToLat 'ր' = "r"
+armToLat 'ց' = "q"
+armToLat 'ւ' = "u"
+armToLat 'փ' = "ph"
+armToLat 'ք' = "q"
+armToLat 'և' = "ev"
+armToLat 'օ' = "o"
+armToLat 'ֆ' = "f"
+armToLat x = [x]
+
+convertToLat :: String -> String
+convertToLat  = Prelude.concat .  map (armToLat . toLower)
+
+
 
