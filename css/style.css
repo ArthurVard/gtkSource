@@ -25,3 +25,24 @@
     margin-bottom:1px;
    margin-left: 0px; 
 }
+
+#sidebar ul {
+  list-style:none;
+  text-indent:-2em;
+//font-size:small;
+}
+
+#sidebar .nested{
+  margin:0 0px;
+  padding:3px 10px;
+  text-decoration:none;
+font-size:small;
+text-indent: 0em;
+}
+#sidebar {
+ 
+ // font-size:small;
+ 
+  text-indent:-2em;
+  list-style-type:none;
+}
