@@ -11,6 +11,8 @@ cabal-dev
 .DS_Store
 .last_multi_watched
 site
+xsite
+xsite.hs
 preview
 
 
