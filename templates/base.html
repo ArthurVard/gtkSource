@@ -12,7 +12,15 @@
   <body>
     $partial("templates/headerclean.html")$
     
-    $body$
+    <div class="row">
+      
+      <!-- Main Blog Content -->
+      <div class="large-12 columns content" role="content">
+	<div style="margin-top: 30px">
+	  $body$
+	</div>
+      </div>
+    </div>
 
     $partial("templates/footer.html")$
   </body>

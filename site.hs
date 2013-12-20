@@ -40,6 +40,8 @@ main = do
     pageTags <- buildTags ("pages/unifiedexam/*/*" .||. "pages/unifiedexam/*")
                           (fromCapture "tags/*.html" . convertToLat)
 
+    allTags <- buildTags ("posts/*" .||. "pages/unifiedexam/*/*" .||. "pages/unifiedexam/*")
+                          (fromCapture "tags/*.html" . convertToLat)
      -- base.html needs a year, tag cloud, and the defaults (title/body)
     let baseCtx   = makeDefaultCtx year tags
     let applyBase = loadAndApplyTemplate "templates/base.html" baseCtx
@@ -49,6 +51,7 @@ main = do
 
     let pageCtx    = defaultPostCtx  pageTags
 
+    let allTagCtx = defaultPostCtx allTags
     
     -- our only root level static page
     match (fromList ["about.rst", "contact.markdown"]) $ do
@@ -118,6 +121,19 @@ main = do
                 >>= loadAndApplyTemplate "templates/default.html"  ctxx
                 >>= relativizeUrls
 
+    tagsRules allTags $ \tag pattern -> do
+        let title = "From All tagged &#8216;" ++ tag ++ "&#8217;"
+        route idRoute
+        compile $ do
+             
+            posts <- constField "posts" <$> postList pattern allTagCtx recentFirst
+            let ctxx = mconcat  [constField "title" title , (makeDefaultCtx year allTags) ]
+            makeItem ""
+                >>= loadAndApplyTemplate "templates/posts.html"  posts
+                >>= loadAndApplyTemplate "templates/base.html"  ctxx
+                >>= relativizeUrls    
+
+
     create ["archive.html"] $ do
         route idRoute
         compile $ do
@@ -125,6 +141,7 @@ main = do
             let archiveCtx =
                     listField "posts" baseCtx (return posts) `mappend`
                     constField "title" "Archives"            `mappend`
+                    tagCloudCtx tags                         `mappend` 
                     defaultContext
 
             makeItem ""
@@ -132,6 +149,20 @@ main = do
                 >>= loadAndApplyTemplate "templates/default.html" baseCtx --(indexarchiveCtx "posts" posts)
                 >>= relativizeUrls
 
+
+
+    create ["allTags.html"] $ do
+        route idRoute
+        compile $ do
+            let xCtx =
+                    constField "title" "AllTags"            `mappend`
+                    tagCloudCtx allTags                      `mappend` 
+                    defaultContext
+
+            makeItem ""
+                >>= loadAndApplyTemplate "templates/allTagsPage.html" xCtx
+                >>= loadAndApplyTemplate "templates/base.html" baseCtx 
+                >>= relativizeUrls
 
     match "index.html" $ do
         route idRoute
@@ -144,7 +175,8 @@ main = do
 
             getResourceBody
                 >>= applyAsTemplate indexCtx
-                >>= applyBase --loadAndApplyTemplate "templates/default.html" (mainindexCtx "posts" posts)
+                >>= loadAndApplyTemplate "templates/index.html" indexCtx
+                >>= applyBase
                 >>= relativizeUrls
       
     
