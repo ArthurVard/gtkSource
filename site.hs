@@ -37,10 +37,18 @@ main = do
 
     -- build tags
     tags <- buildTags "posts/*" (fromCapture "tags/*.html")
-    pageTags <- buildTags ("pages/unifiedexam/*/*" .||. "pages/unifiedexam/*")
+    
+    pageTags <- buildTags ("pages/unifiedexam/*/*.markdown" .||. "pages/unifiedexam/*.markdown")
                           (fromCapture "tags/*.html" . convertToLat)
 
-    allTags <- buildTags ("posts/*" .||. "pages/unifiedexam/*/*" .||. "pages/unifiedexam/*")
+
+    newsTags <- buildTags ("pages/news/*/*.markdown" .||."pages/news/*.markdown" )  (fromCapture "tags/news/*.html" . convertToLat)
+     
+    shtemaranTags <- buildTags ("pages/shtemaran/*/*.markdown" .||."pages/shtemaran/*.markdown" )  (fromCapture "tags/*.html" . convertToLat)
+
+             
+
+    allTags <- buildTags ("posts/*" .||. "pages/unifiedexam/*/*.markdown" .||. "pages/unifiedexam/*.markdown" .||.  "pages/shtemaran/*/*.markdown" .||. "pages/news/*/*.markdown")
                           (fromCapture "tags/*.html" . convertToLat)
      -- base.html needs a year, tag cloud, and the defaults (title/body)
     let baseCtx   = makeDefaultCtx year tags
@@ -51,7 +59,12 @@ main = do
 
     let pageCtx    = defaultPostCtx  pageTags
 
+    let shtemaranCtx    = defaultPostCtx shtemaranTags
+
     let allTagCtx = defaultPostCtx allTags
+
+    let newsCtx = defaultPostCtx newsTags
+        
     
     -- our only root level static page
     match (fromList ["about.rst", "contact.markdown"]) $ do
@@ -68,24 +81,56 @@ main = do
                                                     
 
     -- render unifiedexams menu pages
-    match ("pages/unifiedexam/*/*"  .||. "pages/unifiedexam/*") $ do
+    match ("pages/unifiedexam/*/*.markdown"  .||. "pages/unifiedexam/*.markdown" .||. "pages/unifiedexam/*/*.html") $ do
         route $ customRoute $  (processPagesRoute "exam") .  toFilePath 
         compile $ pandocCompiler
-            >>= saveSnapshot "content"  
-            >>= loadAndApplyTemplate "templates/unifiedexams.html"   (makePageCtx pageTags)
+            >>= saveSnapshot "content"
+            >>= loadAndApplyTemplate "templates/page.html"   (makePageCtx pageTags)
+            >>= loadAndApplyTemplate "templates/unifiedexams.html"   (makeUnifiedCtx pageTags)
             >>= loadAndApplyTemplate "templates/base.html" (makeBasePageCtx year) --postCtx1
             >>= relativizeUrls
             
     -- render currentexams menu pages
-    match "pages/currentexam/*/*" $ do
-        route $ customRoute $ ("exam/"++) .  (processPagesRoute "exam") .  toFilePath 
+    match "pages/currentexam/*.markdown" $ do
+        route $ customRoute $ (processPagesRoute "exam") .  toFilePath 
         compile $ pandocCompiler
-            >>= saveSnapshot "content"  
-            >>= loadAndApplyTemplate "templates/unifiedexams.html"   (makePageCtx pageTags)
+            >>= saveSnapshot "content"
+            >>= loadAndApplyTemplate "templates/page.html"   (makePageCtx pageTags)
+            >>= loadAndApplyTemplate "templates/index.html"  (makeUnifiedCtx pageTags)
+            >>= loadAndApplyTemplate "templates/base.html"   (makeBasePageCtx year)
+            >>= relativizeUrls
+
+    -- render contest  menu pages
+    match "pages/contest/*.markdown" $ do
+        route $ customRoute $ (processPagesRoute "contest") .  toFilePath 
+        compile $ pandocCompiler
+            >>= saveSnapshot "content"
+            >>= loadAndApplyTemplate "templates/page.html"   (makePageCtx pageTags)
+            >>= loadAndApplyTemplate "templates/index.html"  (makeUnifiedCtx pageTags)
+            >>= loadAndApplyTemplate "templates/base.html"   (makeBasePageCtx year)
+            >>= relativizeUrls
+
+    -- render shtemaran menu pages
+    match ("pages/shtemaran/*/*.markdown" .||. "pages/shtemaran/*.markdown")$ do
+        route $ customRoute $ (processPagesRoute "shtemaran") .  toFilePath 
+        compile $ pandocCompiler
+            >>= saveSnapshot "content"
+            >>= loadAndApplyTemplate "templates/page.html"   (makePageCtx shtemaranTags)
+            >>= loadAndApplyTemplate "templates/shtemaran.html"   (makeUnifiedCtx shtemaranTags)
             >>= loadAndApplyTemplate "templates/base.html" (makeBasePageCtx year)
             >>= relativizeUrls   
 
-  
+
+   -- render news
+    match "pages/news/*/*.markdown" $ do
+        route $ customRoute $ (processPagesRoute "news") .  toFilePath 
+        compile $ pandocCompiler
+            >>= saveSnapshot "content"    
+            >>= loadAndApplyTemplate "templates/page.html"   (makePageCtx newsTags)
+            >>= loadAndApplyTemplate "templates/index.html"   (makeUnifiedCtx newsTags)
+            >>= loadAndApplyTemplate "templates/base.html" (makeBasePageCtx year)
+            >>= relativizeUrls
+   
     -- render each of the individual posts
     match "posts/*" $ do
         route $ setExtension "html"
@@ -97,7 +142,7 @@ main = do
 
     -- post listings by tag
     tagsRules tags $ \tag pattern -> do
-        let title = "Posts tagged &#8216;" ++ tag ++ "&#8217;"
+        let title = "Posts պիտակված՝  &#8216;" ++ tag ++ "&#8217;"
         route idRoute
         compile $ do
              
@@ -110,7 +155,7 @@ main = do
                 
     -- pages listings by tag
     tagsRules pageTags $ \tag pattern -> do
-        let title = "Pages tagged &#8216;" ++ tag ++ "&#8217;"
+        let title = "Էջեր պիտակված՝  &#8216;" ++ tag ++ "&#8217;"
         route idRoute
         compile $ do
              
@@ -118,9 +163,41 @@ main = do
             let ctxx = mconcat  [constField "title" title , (makeDefaultCtx year pageTags) ]
             makeItem ""
                 >>= loadAndApplyTemplate "templates/posts.html"  posts
-                >>= loadAndApplyTemplate "templates/default.html"  ctxx
+                >>= loadAndApplyTemplate "templates/unifiedexams.html"  ctxx
+                >>= loadAndApplyTemplate "templates/base.html"  ctxx
                 >>= relativizeUrls
 
+    -- news tags
+    tagsRules newsTags $ \tag pattern -> do
+        let title = "Էջեր պիտակված՝ &#8216;" ++ tag ++ "&#8217;"
+        route idRoute
+        compile $ do
+             
+            posts <- constField "posts" <$> postList pattern newsCtx recentFirst
+            let ctxx = mconcat  [constField "title" title , (makeDefaultCtx year newsTags) ]
+            makeItem ""
+                >>= loadAndApplyTemplate "templates/posts.html"  posts
+                >>= loadAndApplyTemplate "templates/index.html"  ctxx
+                >>= loadAndApplyTemplate "templates/base.html"  ctxx
+                >>= relativizeUrls
+
+
+    -- shtemaran tags
+    tagsRules shtemaranTags $ \tag pattern -> do
+        let title = "Էջեր պիտակված՝ &#8216;" ++ tag ++ "&#8217;"
+        route idRoute
+        compile $ do
+             
+            posts <- constField "posts" <$> postList pattern shtemaranCtx recentFirst
+            let ctxx = mconcat  [constField "title" title , (makeDefaultCtx year shtemaranTags) ]
+            makeItem ""
+                >>= loadAndApplyTemplate "templates/posts.html"  posts
+                >>= loadAndApplyTemplate "templates/shtemaran.html"  ctxx
+                >>= loadAndApplyTemplate "templates/base.html"  ctxx
+                >>= relativizeUrls
+
+  
+   -- all tags rendeirng
     tagsRules allTags $ \tag pattern -> do
         let title = "From All tagged &#8216;" ++ tag ++ "&#8217;"
         route idRoute
@@ -137,16 +214,16 @@ main = do
     create ["archive.html"] $ do
         route idRoute
         compile $ do
-            posts <- recentFirst =<< loadAll "posts/*"
+            posts <- recentFirst =<< loadAll "pages/news/*/*.markdown"
             let archiveCtx =
                     listField "posts" baseCtx (return posts) `mappend`
-                    constField "title" "Archives"            `mappend`
-                    tagCloudCtx tags                         `mappend` 
+                    constField "title" "News"            `mappend`
+                    tagCloudCtx newsTags                     `mappend` 
                     defaultContext
 
             makeItem ""
                 >>= loadAndApplyTemplate "templates/archive.html" archiveCtx
-                >>= loadAndApplyTemplate "templates/default.html" baseCtx --(indexarchiveCtx "posts" posts)
+                >>= loadAndApplyTemplate "templates/default.html" (makeDefaultCtx year newsTags) -- baseCtx
                 >>= relativizeUrls
 
 
@@ -156,7 +233,8 @@ main = do
         compile $ do
             let xCtx =
                     constField "title" "AllTags"            `mappend`
-                    tagCloudCtx allTags                      `mappend` 
+                    tagCloudCtx allTags                     `mappend`
+                    tagCloudCtx' "newstagcloud" newsTags     `mappend` 
                     defaultContext
 
             makeItem ""
@@ -167,11 +245,12 @@ main = do
     match "index.html" $ do
         route idRoute
         compile $ do
-            posts <- recentFirst =<< loadAll "posts/*"
+            posts <- recentFirst =<< loadAll "pages/news/*/*.markdown"
             let indexCtx =
-                    listField "posts" postCtx (return posts) `mappend`
-                    constField "title" "Home"                `mappend`
-                    defaultPostCtx tags
+                    listField "posts" newsCtx (return posts) `mappend`
+                    constField "title" "Նորություններ"         `mappend`
+                    tagCloudCtx newsTags                     `mappend`
+                    defaultPostCtx newsTags
 
             getResourceBody
                 >>= applyAsTemplate indexCtx
@@ -193,6 +272,12 @@ tagCloudCtx :: Tags -> Context String
 tagCloudCtx tags = field "tagcloud" $ \item -> rendered
   where rendered = renderTagCloud 85.0 165.0 tags
 
+-- | Given a collection of Tags, builds a context with a rendered tag cloud
+tagCloudCtx' :: String -> Tags -> Context String
+tagCloudCtx' tagField tags = field tagField $ \item -> rendered
+  where rendered = renderTagCloud 85.0 165.0 tags
+        
+
 -- | Creates the default/base context used on all pages
 makeDefaultCtx :: String -> Tags -> Context String
 makeDefaultCtx year tags = mconcat
@@ -209,12 +294,19 @@ makeBasePageCtx year = mconcat
   , yearCtx     year
   ]  
 
--- | Creates the default/menu pages context used on all menu pages
+-- | Creates the menu pages context used on all menu pages
 makePageCtx :: Tags -> Context String
 makePageCtx tags = mconcat
   [ 
     tagsField "tags" tags
-  , tagCloudCtx tags
+  , defaultContext
+  ]  
+
+-- | Creates the menu pages context used on all menu pages
+makeUnifiedCtx :: Tags -> Context String
+makeUnifiedCtx tags = mconcat
+  [ 
+    tagCloudCtx tags
   , defaultContext
   ]  
 
@@ -322,7 +414,7 @@ armToLat 'ս' = "s"
 armToLat 'վ' = "v"
 armToLat 'տ' = "t"
 armToLat 'ր' = "r"
-armToLat 'ց' = "q"
+armToLat 'ց' = "c"
 armToLat 'ւ' = "u"
 armToLat 'փ' = "ph"
 armToLat 'ք' = "q"
@@ -332,7 +424,9 @@ armToLat 'ֆ' = "f"
 armToLat x = [x]
 
 convertToLat :: String -> String
-convertToLat  = Prelude.concat .  map (armToLat . toLower)
+convertToLat "նորություն" = "news"
+convertToLat "նորություններ" = "news"
+convertToLat str  = Prelude.concat  $ map (armToLat . toLower) str
 
 
 
