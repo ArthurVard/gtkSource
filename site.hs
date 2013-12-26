@@ -125,7 +125,7 @@ main = do
     match "pages/news/*/*.markdown" $ do
         route $ customRoute $ (processPagesRoute "news") .  toFilePath 
         compile $ pandocCompiler
-            >>= saveSnapshot "content"    
+            >>= saveSnapshot "news-content"    
             >>= loadAndApplyTemplate "templates/page.html"   (makePageCtx newsTags)
             >>= loadAndApplyTemplate "templates/index.html"   (makeUnifiedCtx newsTags)
             >>= loadAndApplyTemplate "templates/base.html" (makeBasePageCtx year)
@@ -243,19 +243,29 @@ main = do
                 >>= relativizeUrls
 
     match "index.html" $ do
+        let title = "Նորություններ"
         route idRoute
         compile $ do
-            posts <- recentFirst =<< loadAll "pages/news/*/*.markdown"
+          
+          {--  posts <- recentFirst =<< loadAll "pages/news/*/*.markdown"
             let indexCtx =
-                    listField "posts" newsCtx (return posts) `mappend`
+                    listField "posts1" newsCtx (return posts) `mappend`
                     constField "title" "Նորություններ"         `mappend`
                     tagCloudCtx newsTags                     `mappend`
                     defaultPostCtx newsTags
-
             getResourceBody
                 >>= applyAsTemplate indexCtx
                 >>= loadAndApplyTemplate "templates/index.html" indexCtx
                 >>= applyBase
+                >>= relativizeUrls
+          --}
+
+            news <- constField "posts" <$> postTeaserList "pages/news/*/*.markdown" "news-content" newsCtx recentFirst
+            let ctxx = mconcat  [constField "title" title , (makeDefaultCtx year newsTags) ]
+            makeItem ""
+                >>= loadAndApplyTemplate "templates/posts.html"  news
+                >>= loadAndApplyTemplate "templates/index.html"  ctxx
+                >>= loadAndApplyTemplate "templates/base.html"  ctxx
                 >>= relativizeUrls
       
     
@@ -378,7 +388,19 @@ postList :: Pattern
 postList pattern postCtx sortFilter = do
     posts   <- sortFilter =<< loadAll pattern
     itemTpl <- loadBody "templates/post-item.html"
-    applyTemplateList itemTpl postCtx posts
+    applyTemplateList itemTpl  postCtx posts
+    --applyTemplateList itemTpl (teaserField "teaser" "news-content" `mappend` postCtx) posts
+
+
+postTeaserList :: Pattern
+               -> String   
+               -> Context String
+               -> ([Item String] -> Compiler [Item String])
+               -> Compiler String
+postTeaserList pattern teaserSnapshot postCtx sortFilter = do
+    posts   <- sortFilter =<< loadAll pattern
+    itemTpl <- loadBody "templates/post-item.html"
+    applyTemplateList itemTpl (teaserField "teaser" teaserSnapshot `mappend` postCtx) posts
 
 
 
