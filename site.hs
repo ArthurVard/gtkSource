@@ -2,9 +2,10 @@
 -- gtk.am
 --------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
-import           Hakyll
+
 import           Control.Applicative
 import           Data.Monoid (mappend, mconcat)
+import           Data.List (isInfixOf, intersperse, intercalate, sortBy, reverse)
 import           Data.Maybe (fromMaybe)
 import           Data.Time.Format (formatTime)
 import           Data.Time.Clock (getCurrentTime)
@@ -13,7 +14,12 @@ import           System.FilePath.Posix  (takeBaseName, splitDirectories, (</>)
                                                      , addExtension, addExtension
                                                      , replaceExtension)
 import           Data.Char (toLower)
-
+import           Text.Blaze.Html.Renderer.String (renderHtml)
+import           Text.Blaze ((!), toValue)
+import qualified Data.Map as M
+import qualified Text.Blaze.Html5 as H
+import qualified Text.Blaze.Html5.Attributes as A
+import           Hakyll
 --------------------------------------------------------------------------------
 main :: IO ()
 main = do
@@ -259,8 +265,8 @@ main = do
                 >>= applyBase
                 >>= relativizeUrls
           --}
-
-            news <- constField "posts" <$> postTeaserList "pages/news/*/*.markdown" "news-content" newsCtx recentFirst
+            pp <- postAdvancedCtx newsTags
+            news <- constField "posts" <$> postTeaserList "pages/news/*/*.markdown" "news-content" pp recentFirst
             let ctxx = mconcat  [constField "title" title , (makeDefaultCtx year newsTags) ]
             makeItem ""
                 >>= loadAndApplyTemplate "templates/posts.html"  news
@@ -279,19 +285,71 @@ main = do
 
 --------------------------------------------------------------------------------
 
+-- | Full context for posts.
+--
+postAdvancedCtx :: MonadMetadata m => Tags -> m (Context String)
+postAdvancedCtx t = do
+  return $
+    mapContext prettify
+      (tagsFieldWith getTags render join "prettytags" t) `mappend`
+    tagCloudCtx t `mappend`
+    functionField "readmore" readMoreField `mappend`
+    functionField "pagetitle" pageTitle `mappend`
+    dateField "date" "%B %e, %Y" `mappend`
+    defaultContext
+  where prettify "" = ""
+        prettify s = "<div class=\"tags\">" ++ s ++ "</div>"
+        render _ Nothing = Nothing
+        render tag (Just filePath) = Just $ H.span ! A.class_ "tag" $
+          H.a ! A.href (toValue $ toUrl filePath) $ H.toHtml tag
+        join = mconcat . intersperse " "
+        pageTitle _ i = do
+          m <- getMetadata $ itemIdentifier i
+          return $ "Sky Blue Trades | " ++ (m M.! "title")
+
+
+-- | Generate "Read more" link for an index entry.
+--
+readMoreField :: [String] -> Item String -> Compiler String
+readMoreField _ i = do
+  rte <- getRoute $ itemIdentifier i
+  return $ case rte of
+    Nothing -> ""
+    Just r -> if isInfixOf "<!--MORE-->" (itemBody i)
+              then readMoreLink r
+              else ""
+    where readMoreLink r' =
+            renderHtml $ H.div ! A.class_ "readmore" $
+            H.a ! A.href (toValue $ "/" ++ r') $
+            H.preEscapedToMarkup ("Read more &raquo;"::String)
+
+
 -- | Creates a "year" context from a string representation of the current year
 yearCtx :: String -> Context String
 yearCtx year = field "year" $ \item -> return year
 
 -- | Given a collection of Tags, builds a context with a rendered tag cloud
-tagCloudCtx :: Tags -> Context String
+{--tagCloudCtx :: Tags -> Context String
 tagCloudCtx tags = field "tagcloud" $ \item -> rendered
-  where rendered = renderTagCloud 85.0 165.0 tags
+  where rendered = renderTagCloud 85.0 165.0 tags--}
 
--- | Given a collection of Tags, builds a context with a rendered tag cloud
 tagCloudCtx' :: String -> Tags -> Context String
-tagCloudCtx' tagField tags = field tagField $ \item -> rendered
-  where rendered = renderTagCloud 85.0 165.0 tags
+tagCloudCtx' tagHolderName = tagCloudFieldWith tagHolderName  makeLink (intercalate " ") 100 200
+  where
+    makeLink minSize maxSize tag url count min' max' = renderHtml $
+        H.span ! A.class_ "tagcloud" !
+        A.style (toValue $ "font-size: " ++ size count min' max') $
+        H.a ! A.href (toValue url) $ H.toHtml tag
+      where
+        -- Show the relative size of one 'count' in percent
+        size count min' max' =
+          let diff = 1 + fromIntegral max' - fromIntegral min'
+              relative = (fromIntegral count - fromIntegral min') / diff
+              size' = floor $ minSize + relative * (maxSize - minSize)
+          in show (size' :: Int) ++ "%"
+
+
+tagCloudCtx = tagCloudCtx' "tagcloud"
         
 
 -- | Creates the default/base context used on all pages
