@@ -113,48 +113,26 @@ div.tags span.tag { background-color: #CCC; padding: 2px 5px; }
 
 
 /* footer menu item style*/
-* {margin: 0; padding: 0;}
-
-
-
-#footer #menu {
-  margin: 0px 0px 0px 0px;
-}
-
-#footer #menu ul {
-  overflow: auto;
-  list-style-type: none;
-}
 
 #footer #menu li {
-  height: 16px;
-  float: left;
-  margin-right: 0px;
+font-size: 14px;
+ margin-right: 0px;
 margin-left: 0px;
   border-right: 1px solid #222;
-  padding: 0 10px;
-}
-
-#footer #menu li:last-child {
-  border-right: none;
+padding: 0 10px;
+font: Arial AMU, sans-serif;
 }
 
 #footer #menu li a {
   text-decoration: none;
   color: #aaa;
-  font: Arial AMU, sans-serif;
-  font-size: 13px;
+  font: 'Arial AMU', sans-serif;
+  font-size: 14px;
   -webkit-transition: all 0.5s ease;
 }
 
 #footer #menu li a:hover {
   color: #111;
- // text-transform: uppercase;
-}
-
-#footer #menu li.active a {
-  font-weight: bold;
-  color: #333;
 }
 
 
