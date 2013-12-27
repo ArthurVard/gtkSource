@@ -125,8 +125,8 @@ main = do
     match "pages/news/*/*.markdown" $ do
         route $ customRoute $ (processPagesRoute "news") .  toFilePath 
         compile $ pandocCompiler
-            >>= saveSnapshot "news-content"    
             >>= loadAndApplyTemplate "templates/page.html"   (makePageCtx newsTags)
+            >>= saveSnapshot "news-content"
             >>= loadAndApplyTemplate "templates/index.html"   (makeUnifiedCtx newsTags)
             >>= loadAndApplyTemplate "templates/base.html" (makeBasePageCtx year)
             >>= relativizeUrls
@@ -146,7 +146,7 @@ main = do
         route idRoute
         compile $ do
              
-            posts <- constField "posts" <$> postList pattern postCtx recentFirst
+            posts <- constField "posts" <$> postList pattern postCtx recentFirst "tagItem"
             let ctxx = mconcat  [constField "title" title , baseCtx ]
             makeItem ""
                 >>= loadAndApplyTemplate "templates/posts.html"  posts
@@ -159,7 +159,7 @@ main = do
         route idRoute
         compile $ do
              
-            posts <- constField "posts" <$> postList pattern pageCtx recentFirst
+            posts <- constField "posts" <$> postList pattern pageCtx recentFirst "tagItem"
             let ctxx = mconcat  [constField "title" title , (makeDefaultCtx year pageTags) ]
             makeItem ""
                 >>= loadAndApplyTemplate "templates/posts.html"  posts
@@ -173,7 +173,7 @@ main = do
         route idRoute
         compile $ do
              
-            posts <- constField "posts" <$> postList pattern newsCtx recentFirst
+            posts <- constField "posts" <$> postList pattern newsCtx recentFirst "tagItem"
             let ctxx = mconcat  [constField "title" title , (makeDefaultCtx year newsTags) ]
             makeItem ""
                 >>= loadAndApplyTemplate "templates/posts.html"  posts
@@ -188,7 +188,7 @@ main = do
         route idRoute
         compile $ do
              
-            posts <- constField "posts" <$> postList pattern shtemaranCtx recentFirst
+            posts <- constField "posts" <$> postList pattern shtemaranCtx recentFirst "tagItem"
             let ctxx = mconcat  [constField "title" title , (makeDefaultCtx year shtemaranTags) ]
             makeItem ""
                 >>= loadAndApplyTemplate "templates/posts.html"  posts
@@ -203,7 +203,7 @@ main = do
         route idRoute
         compile $ do
              
-            posts <- constField "posts" <$> postList pattern allTagCtx recentFirst
+            posts <- constField "posts" <$> postList pattern allTagCtx recentFirst "tagItem"
             let ctxx = mconcat  [constField "title" title , (makeDefaultCtx year allTags) ]
             makeItem ""
                 >>= loadAndApplyTemplate "templates/posts.html"  posts
@@ -217,7 +217,7 @@ main = do
             posts <- recentFirst =<< loadAll "pages/news/*/*.markdown"
             let archiveCtx =
                     listField "posts" baseCtx (return posts) `mappend`
-                    constField "title" "News"            `mappend`
+                    constField "title" "News"                `mappend`
                     tagCloudCtx newsTags                     `mappend` 
                     defaultContext
 
@@ -268,8 +268,14 @@ main = do
                 >>= loadAndApplyTemplate "templates/base.html"  ctxx
                 >>= relativizeUrls
       
-    
-
+    --ToDo: remove <!--more--> markups from content
+    create ["rss.xml"] $ do
+    route idRoute
+    compile $ do
+        let feedCtx = postCtx `mappend` bodyField "description"
+        posts <- fmap (take 10) . recentFirst =<<
+            loadAllSnapshots "pages/news/*/*.markdown" "news-content"
+        renderRss feedConfiguration feedCtx posts
 
 --------------------------------------------------------------------------------
 
@@ -384,10 +390,11 @@ explorePattern tags primaryTag = fromList identifiers
 postList :: Pattern
          -> Context String
          -> ([Item String] -> Compiler [Item String])
+         -> String
          -> Compiler String
-postList pattern postCtx sortFilter = do
+postList pattern postCtx sortFilter tmpl = do
     posts   <- sortFilter =<< loadAll pattern
-    itemTpl <- loadBody "templates/post-item.html"
+    itemTpl <- loadBody $ fromFilePath $ "templates/" ++ tmpl ++ ".html"
     applyTemplateList itemTpl  postCtx posts
     --applyTemplateList itemTpl (teaserField "teaser" "news-content" `mappend` postCtx) posts
 
@@ -397,10 +404,24 @@ postTeaserList :: Pattern
                -> Context String
                -> ([Item String] -> Compiler [Item String])
                -> Compiler String
-postTeaserList pattern teaserSnapshot postCtx sortFilter = do
-    posts   <- sortFilter =<< loadAll pattern
-    itemTpl <- loadBody "templates/post-item.html"
-    applyTemplateList itemTpl (teaserField "teaser" teaserSnapshot `mappend` postCtx) posts
+postTeaserList pattern teaserSnapshot postCtx sortFilter =
+    postList pattern  (teaserField "teaser" teaserSnapshot `mappend` postCtx) sortFilter "post-item"
+    
+
+
+
+
+-- | RSS feed configuration.
+--
+feedConfiguration :: FeedConfiguration
+feedConfiguration = FeedConfiguration
+    { feedTitle       = "gtk.am RSS feed."
+    , feedDescription = "RSS feed for gtk.am"
+    , feedAuthorName  = "Arthur"
+    , feedAuthorEmail = "info@gtk.am"
+    , feedRoot        = "http://gtk.am"
+    }
+
 
 
 

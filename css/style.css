@@ -307,3 +307,30 @@ padding:25px 0 0 0;
 }
 
 
+
+
+/* common styles */
+
+h1, h2, h4 {
+    
+     margin-bottom: 10px;
+     line-height: 1.2em;
+     font-family: 'Yanone Kaffeesatz',Arial AMU, sans-serif;
+}
+
+h1 {
+    font-size: 16px;
+}
+
+h4 {
+    font-sizel:12px;
+}
+
+
+.postdate {
+    background-color: #AAAAAA;
+    color: #FFFFFF;
+    float: right;
+    margin: -2.4em 0 0;
+    padding: 4px;
+}
