@@ -312,3 +312,47 @@ h4 {
     margin: -2.4em 0 0;
     padding: 4px;
 }
+
+
+
+
+
+/*books grid*/
+#books.table th.field {
+    vertical-align: bottom;
+}
+#books.table .cover {
+    float: none;
+    margin: 0;
+    width: 50px;
+}
+
+#books.table .cover .value img {
+    display: block;
+    width: 50px;
+}
+
+
+#books.table .field {
+    padding: 5px 5px 5px 0;
+    vertical-align: top;
+}
+
+#books.table .field {
+    padding: 5px 5px 5px 0;
+    vertical-align: top;
+}
+#books.table .header {
+    font-weight: bold;
+}
+.tableListReverse td, .tableList th {
+    border-top: 0 none rgba(0, 0, 0, 0);
+}
+.tableList th {
+    padding-right: 0.5em;
+}
+
+td, th {
+    font-size: 12px;
+    line-height: 18px;
+}

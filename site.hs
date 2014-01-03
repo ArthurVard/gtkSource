@@ -2,7 +2,7 @@
 -- gtk.am
 --------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
-
+module Main where
 import           Control.Applicative
 import           Data.Monoid (mappend, mconcat)
 import           Data.List (isInfixOf, intersperse, intercalate, sortBy, reverse)
@@ -49,8 +49,11 @@ main = do
 
 
     newsTags <- buildTags ("pages/news/*/*.markdown" .||."pages/news/*.markdown" )  (fromCapture "tags/news/*.html" . convertToLat)
+
+   
      
-    shtemaranTags <- buildTags ("pages/shtemaran/*/*.markdown" .||."pages/shtemaran/*.markdown" )  (fromCapture "tags/*.html" . convertToLat)
+    shtemaranTags <- buildTags ("pages/shtemaran/*/*.markdown" .||."pages/shtemaran/*.markdown" )  (fromCapture "tags/shtemaran/*.html" . convertToLat)
+    armenianshtemaranTags <- buildTags ("pages/shtemaran/*/*.markdown" )  (fromCapture "tags/*.html" . convertToLat)
 
              
 
@@ -117,7 +120,8 @@ main = do
             >>= relativizeUrls
 
     -- render shtemaran menu pages
-    match ("pages/shtemaran/*/*.markdown" .||. "pages/shtemaran/*.markdown")$ do
+   -- match ("pages/shtemaran/*/*.markdown" .||. "pages/shtemaran/*.markdown")$ do
+    match "pages/shtemaran/*/*.markdown" $ do     
         route $ customRoute $ (processPagesRoute "shtemaran") .  toFilePath 
         compile $ pandocCompiler
             >>= saveSnapshot "content"
@@ -273,7 +277,43 @@ main = do
                 >>= loadAndApplyTemplate "templates/index.html"  ctxx
                 >>= loadAndApplyTemplate "templates/base.html"  ctxx
                 >>= relativizeUrls
-      
+
+   {-- create ["/pages/shtemaran/armenian.html"] $ do
+        let title = "Armenian shtemarans"
+        route $ customRoute $ (processPagesRoute "shtemaran") .  toFilePath
+        compile $ do
+            pp <- postAdvancedCtx armenianshtemaranTags
+            news <- constField "posts" <$> postList "pages/shtemaran/*/*.markdown" pp recentFirst "post-list"
+            let ctxx = mconcat  [constField "title" title , (makeDefaultCtx year armenianshtemaranTags) ]
+            makeItem ""
+                >>= loadAndApplyTemplate "templates/posts.html"  news
+                >>= loadAndApplyTemplate "templates/index.html"  ctxx
+                >>= loadAndApplyTemplate "templates/base.html"  ctxx
+                >>= relativizeUrls     --}      
+
+
+    let shs = ["armenian", "biology",   "chemistry", "english",
+               "france",   "geography", "germany",   "history",
+               "math",     "russian" ]
+
+    processShtemaran "armenian" baseCtx shtemaranTags year
+    processShtemaran "biology" baseCtx shtemaranTags year 
+    processShtemaran "chemistry" baseCtx shtemaranTags year
+    processShtemaran "english" baseCtx shtemaranTags year
+    processShtemaran "france" baseCtx shtemaranTags year
+    processShtemaran "geography" baseCtx shtemaranTags year
+    processShtemaran "germany" baseCtx shtemaranTags year
+    processShtemaran "history" baseCtx shtemaranTags year
+    processShtemaran "math" baseCtx shtemaranTags year
+    processShtemaran "russian" baseCtx shtemaranTags year
+
+   {-- map (\p ->                  
+          --all shtemarans in one page
+            match (fromGlob "pages/shtemaran/" ++p ++".markdown") $ do
+                route $ customRoute $ (processPagesRoute "shtemaran") .  toFilePath
+                compile $ shtemaranCompiler p baseCtx shtemaranTags year
+        ) shs      --}
+    
     --ToDo: remove <!--more--> markups from content
     create ["rss.xml"] $ do
     route idRoute
@@ -284,6 +324,37 @@ main = do
         renderRss feedConfiguration feedCtx posts
 
 --------------------------------------------------------------------------------
+
+processPagesRoute root path = root </>  year </> (replaceExtension fileName "html")
+                                        where fileName =  last (splitDirectories path)
+                                              year | length (splitDirectories path) < 4  = ""
+                                                   | otherwise = last $ init (splitDirectories path)
+                       
+
+
+processShtemaran p baseCtx shtemaranTags year = do
+           match (fromGlob $ "pages/shtemaran/" ++ p ++".markdown") $ do
+                route $ customRoute $ (processPagesRoute "shtemaran") .  toFilePath
+                compile $ shtemaranCompiler p baseCtx shtemaranTags year
+
+
+shtemaranCompiler :: String -> Context String -> Tags -> String -> Compiler (Item String)
+shtemaranCompiler subject baseCtx shtemaranTags year = do
+            posts2012 <- recentFirst =<< loadAll  (fromGlob $  "pages/shtemaran/2012-2013/" ++ subject ++"*.markdown") 
+            posts2013 <- recentFirst =<< loadAll  (fromGlob $  "pages/shtemaran/2013-2014/" ++ subject ++"*.markdown") 
+            let archiveCtx =
+                    listField "posts2012" baseCtx (return posts2012) `mappend`
+                    listField "posts2013" baseCtx (return posts2013) `mappend`
+                    constField "title" "Shtemarans"                  `mappend`
+                    tagCloudCtx shtemaranTags                        `mappend`
+                    tagsField "tags" shtemaranTags                   `mappend` 
+                    defaultContext
+
+            makeItem ""
+                >>= loadAndApplyTemplate "templates/shtemaran-list.html" archiveCtx
+                >>= loadAndApplyTemplate "templates/shtemaran.html"   (makeUnifiedCtx shtemaranTags)
+                >>= loadAndApplyTemplate "templates/base.html" (makeBasePageCtx year)
+                >>= relativizeUrls
 
 -- | Full context for posts.
 --
@@ -305,7 +376,7 @@ postAdvancedCtx t = do
         join = mconcat . intersperse " "
         pageTitle _ i = do
           m <- getMetadata $ itemIdentifier i
-          return $ "Sky Blue Trades | " ++ (m M.! "title")
+          return $ "gtk.am | " ++ (m M.! "title")
 
 
 -- | Generate "Read more" link for an index entry.

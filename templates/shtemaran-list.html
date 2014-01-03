@@ -1,0 +1,62 @@
+
+<div class="clear"/>
+<table id="books" border="0" class="table stacked">
+  <thead>
+    <tr id="booksHeader" class="tableList">
+      <th alt="cover" class="header field cover" style="">կազմ</th>
+      <th alt="title" class="header field title" style="">վերնագիր</th>
+      <th alt="author" class="header field author" style="">տարի</th>
+    </tr>
+  </thead>
+  <tbody id="booksBody">
+
+    $for(posts2013)$
+    <tr>
+      <td class="field cover">
+	<div class="value">
+	  <a href="$url$">
+	    <img title="$title$" src="/images/armenian1.jpg" alt="$title$">
+	  </a>
+	</div>
+      </td>
+      <td class="field title">
+	<div class="value">
+	  <a href="$url$" title="$title$">$title$</a>
+	</div>
+      </td>
+      <td class="field title">
+	<div class="value">
+	  2013
+	</div>
+      </td>
+    </tr>
+    $endfor$
+
+    $for(posts2012)$
+    <tr>
+      <td class="field cover">
+	<div class="value">
+	  <a href="$url$">
+	    <img title="$title$" src="/images/armenian1.jpg" alt="$title$">
+	  </a>
+	</div>
+      </td>
+      <td class="field title">
+	<div class="value">
+	  <a href="$url$" title="$title$">$title$</a>
+	</div>
+      </td>
+      <td class="field title">
+	<div class="value">
+	  2012
+	</div>
+      </td>
+    </tr>
+    $endfor$
+  </tbody>
+</table>
+<div class="clear"/>
+ <br>
+    $tags$
+
+
