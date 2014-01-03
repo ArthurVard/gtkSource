@@ -53,7 +53,7 @@ main = do
    
      
     shtemaranTags <- buildTags ("pages/shtemaran/*/*.markdown" .||."pages/shtemaran/*.markdown" )  (fromCapture "tags/shtemaran/*.html" . convertToLat)
-    armenianshtemaranTags <- buildTags ("pages/shtemaran/*/*.markdown" )  (fromCapture "tags/*.html" . convertToLat)
+   
 
              
 
@@ -83,12 +83,6 @@ main = do
             >>= relativizeUrls
 
    
-    let processPagesRoute root path = root </>  year </> (replaceExtension fileName "html")
-                                        where fileName =  last (splitDirectories path)
-                                              year | length (splitDirectories path) < 4  = ""
-                                                   | otherwise = last $ init (splitDirectories path)
-                                                    
-
     -- render unifiedexams menu pages
     match ("pages/unifiedexam/*/*.markdown"  .||. "pages/unifiedexam/*.markdown" .||. "pages/unifiedexam/*/*.html") $ do
         route $ customRoute $  (processPagesRoute "exam") .  toFilePath 
@@ -324,14 +318,14 @@ main = do
         renderRss feedConfiguration feedCtx posts
 
 --------------------------------------------------------------------------------
-
+processPagesRoute :: FilePath -> [Char] -> FilePath
 processPagesRoute root path = root </>  year </> (replaceExtension fileName "html")
                                         where fileName =  last (splitDirectories path)
                                               year | length (splitDirectories path) < 4  = ""
                                                    | otherwise = last $ init (splitDirectories path)
                        
 
-
+processShtemaran :: [Char]  -> Context String -> Tags -> String -> Rules ()
 processShtemaran p baseCtx shtemaranTags year = do
            match (fromGlob $ "pages/shtemaran/" ++ p ++".markdown") $ do
                 route $ customRoute $ (processPagesRoute "shtemaran") .  toFilePath
@@ -419,7 +413,7 @@ tagCloudCtx' tagHolderName = tagCloudFieldWith tagHolderName  makeLink (intercal
               size' = floor $ minSize + relative * (maxSize - minSize)
           in show (size' :: Int) ++ "%"
 
-
+tagCloudCtx :: Tags -> Context String
 tagCloudCtx = tagCloudCtx' "tagcloud"
         
 
@@ -469,6 +463,7 @@ defaultPostCtx tags = mconcat
   , defaultContext
   ]
 
+postCtx1 :: Context String
 postCtx1 =
       constField "mainselection" " "    `mappend`
       constField "aboutselection" " "   `mappend`
@@ -478,6 +473,7 @@ postCtx1 =
 
 
 --context for archive, or any generated file to process with default.hetml temaplate
+indexarchiveCtx :: String -> [Item String] -> Context String
 indexarchiveCtx postToken ps =
         listField postToken  postCtx (return ps)         `mappend`
         constField "title" "Archive"                     `mappend`
@@ -486,7 +482,8 @@ indexarchiveCtx postToken ps =
         constField "contactselection" " "                `mappend`
         constField "archiveselection" "class='selected'" `mappend`
         defaultContext
-
+        
+mainindexCtx :: String -> [Item String] -> Context String
 mainindexCtx postToken ps =
           listField postToken  postCtx (return ps)      `mappend`
           constField "title" "Home"                     `mappend`
@@ -552,7 +549,7 @@ feedConfiguration = FeedConfiguration
     }
 
 
-
+armToLat :: Char -> [Char]
 
 armToLat 'ա' = "a"
 armToLat 'բ' = "b"
