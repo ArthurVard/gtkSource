@@ -356,3 +356,14 @@ td, th {
     font-size: 12px;
     line-height: 18px;
 }
+
+
+.idxlinknew {
+    float: right;
+}
+.idxlinkold {
+    float: left;
+}
+.idxlinkold, .idxlinknew {
+    font-size: 125%;
+}

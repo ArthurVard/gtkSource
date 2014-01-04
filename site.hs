@@ -12,7 +12,7 @@ import           Data.Time.Clock (getCurrentTime)
 import           System.Locale (defaultTimeLocale)
 import           System.FilePath.Posix  (takeBaseName, splitDirectories, (</>)
                                                      , addExtension, addExtension
-                                                     , replaceExtension)
+                                                     , replaceExtension, dropExtension)
 import           Data.Char (toLower)
 import           Text.Blaze.Html.Renderer.String (renderHtml)
 import           Text.Blaze ((!), toValue)
@@ -21,6 +21,13 @@ import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 import           Hakyll
 --------------------------------------------------------------------------------
+
+-- | Number of news teasers displayed per sorted index page.
+--
+newsPerIndexPage :: Int
+newsPerIndexPage = 3
+
+
 main :: IO ()
 main = do
    -- get the current year from the system time before entering the Rules monad
@@ -246,44 +253,19 @@ main = do
                 >>= loadAndApplyTemplate "templates/base.html" baseCtx 
                 >>= relativizeUrls
 
-    match "index.html" $ do
+  {--  match "index.html" $ do
         let title = "Նորություններ"
         route idRoute
         compile $ do
-          
-          {--  posts <- recentFirst =<< loadAll "pages/news/*/*.markdown"
-            let indexCtx =
-                    listField "posts1" newsCtx (return posts) `mappend`
-                    constField "title" "Նորություններ"         `mappend`
-                    tagCloudCtx newsTags                     `mappend`
-                    defaultPostCtx newsTags
-            getResourceBody
-                >>= applyAsTemplate indexCtx
-                >>= loadAndApplyTemplate "templates/index.html" indexCtx
-                >>= applyBase
-                >>= relativizeUrls
-          --}
             pp <- postAdvancedCtx newsTags
-            news <- constField "posts" <$> postTeaserList "pages/news/*/*.markdown" "news-content" pp recentFirst
+           -- news <- constField "posts" <$> postTeaserList "pages/news/*/*.markdown" "news-content" pp recentFirst
+            news <- constField "posts" <$> postList "pages/news/*/*.markdown" pp recentFirst "post-item"
             let ctxx = mconcat  [constField "title" title , (makeDefaultCtx year newsTags) ]
             makeItem ""
                 >>= loadAndApplyTemplate "templates/posts.html"  news
                 >>= loadAndApplyTemplate "templates/index.html"  ctxx
                 >>= loadAndApplyTemplate "templates/base.html"  ctxx
-                >>= relativizeUrls
-
-   {-- create ["/pages/shtemaran/armenian.html"] $ do
-        let title = "Armenian shtemarans"
-        route $ customRoute $ (processPagesRoute "shtemaran") .  toFilePath
-        compile $ do
-            pp <- postAdvancedCtx armenianshtemaranTags
-            news <- constField "posts" <$> postList "pages/shtemaran/*/*.markdown" pp recentFirst "post-list"
-            let ctxx = mconcat  [constField "title" title , (makeDefaultCtx year armenianshtemaranTags) ]
-            makeItem ""
-                >>= loadAndApplyTemplate "templates/posts.html"  news
-                >>= loadAndApplyTemplate "templates/index.html"  ctxx
-                >>= loadAndApplyTemplate "templates/base.html"  ctxx
-                >>= relativizeUrls     --}      
+                >>= relativizeUrls--}
 
 
     let shs = ["armenian", "biology",   "chemistry", "english",
@@ -317,7 +299,91 @@ main = do
             loadAllSnapshots "pages/news/*/*.markdown" "news-content"
         renderRss feedConfiguration feedCtx posts
 
+
+
+
+ -- Generate blog index pages: we need to split the articles, sorted
+  -- by publication date, into groups for display across the right
+  -- number of index pages.
+    mds <- getAllMetadata newsPattern
+    let ids = reverse $ map fst mds
+        pids = chunk newsPerIndexPage ids
+        indexPages =
+          map (\i -> fromFilePath $ "index" ++
+                     (if i == 1 then "" else show i) ++ ".html")
+          [1..length pids]
+        indexes = zip indexPages pids
+    create (map fst indexes) $ do
+      route idRoute
+      compile $ do
+        pp <- postAdvancedCtx newsTags
+        indexCompiler newsTags  pp indexes year
+
+    where
+      newsPattern = fromGlob "pages/news/*/*.markdown" 
+
+
+
 --------------------------------------------------------------------------------
+-- | Split list into equal sized sublists.
+--
+chunk :: Int -> [a] -> [[a]]
+chunk n [] = []
+chunk n xs = ys : chunk n zs
+  where (ys,zs) = splitAt n xs
+
+-- | String together multiple template compilers.
+--
+loadAndApplyTemplates :: [String] -> Context String ->
+                         Item String -> Compiler (Item String)
+loadAndApplyTemplates [c] ctx i =
+  loadAndApplyTemplate (fromFilePath $ "templates/" ++ c ++ ".html") ctx i
+loadAndApplyTemplates (c:cs) ctx i = do
+  i' <- loadAndApplyTemplate (fromFilePath $ "templates/" ++ c ++ ".html") ctx i
+  loadAndApplyTemplates cs ctx i'
+
+-- | Index page compiler: generate a single index page based on
+-- identifier name, with the appropriate posts on each one.
+--
+indexCompiler :: Tags -> Context String
+                 -> [(Identifier, [Identifier])] -> String -> Compiler (Item String)
+indexCompiler tags ctx ids year = do
+  pg <- (drop 5 . dropExtension . takeBaseName . toFilePath) <$> getUnderlying
+  let i = if pg == "" then 1 else (read pg :: Int)
+      n = length ids
+      older = indexNavLink i 1 n
+      newer = indexNavLink i (-1) n
+  list <- postList (fromList $ snd $ ids !! (i - 1))  ctx recentFirst "post-item"
+  news <- constField "posts" <$> postTeaserList  (fromList $ snd $ ids !! (i - 1))  "news-content" ctx recentFirst
+  makeItem ""
+    >>= loadAndApplyTemplate "templates/posts.html"  news
+    >>= loadAndApplyTemplates ["page1", "index1", "base"]
+         (constField "title" "Sky Blue Trades" `mappend`
+          constField "pagetitle" "Sky Blue Trades" `mappend`
+         -- constField "posts" list `mappend`
+          constField "navlinkolder" older `mappend`
+          constField "navlinknewer" newer `mappend`
+          tagCloudCtx tags `mappend`
+          yearCtx     year `mappend`
+          ctx `mappend`
+          defaultContext)
+    >>= relativizeUrls
+
+
+-- | Generate navigation link HTML for stepping between index pages.
+--
+indexNavLink :: Int -> Int -> Int -> String
+indexNavLink n d maxn = renderHtml ref
+  where ref = if (refPage == "") then ""
+              else H.a ! A.href (toValue $ toUrl $ refPage) $
+                   (H.preEscapedToMarkup lab)
+        lab :: String
+        lab = if (d > 0) then "&laquo; Հին" else "Նոր &raquo;"
+        refPage = if (n + d < 1 || n + d > maxn) then ""
+                  else case (n + d) of
+                    1 -> "/index.html"
+                    _ -> "/index" ++ (show $ n + d) ++ ".html"
+
 processPagesRoute :: FilePath -> [Char] -> FilePath
 processPagesRoute root path = root </>  year </> (replaceExtension fileName "html")
                                         where fileName =  last (splitDirectories path)
