@@ -367,3 +367,144 @@ td, th {
 .idxlinkold, .idxlinknew {
     font-size: 125%;
 }
+
+
+/*shtemaran styles*/
+.leftContainer {
+    float: left;
+    padding-right: 10px;
+    width: 725px;
+}
+.leftContainer {
+    word-wrap: break-word;
+}
+#topcol {
+    margin-bottom: 0;
+    width: 100%;
+}
+.col.last {
+    margin-right: 0;
+}
+#imagecol {
+    text-align: center;
+    width: 150px;
+}
+
+#metacol {
+    width: 455px;
+}
+
+.col {
+    float: left;
+    margin: 0 20px 10px 0;
+}
+
+.stacked {
+    margin-bottom: 10px;
+}
+
+.bookCoverContainer {
+    position: relative;
+    text-align: center;
+    width: 100%;
+}
+.bookCoverPrimary {
+    height: 100%;
+    width: 100%;
+}
+
+.bookCoverActions {
+    display: none;
+    margin-top: -40%;
+    padding-bottom: 20px;
+    position: absolute;
+    top: 50%;
+    width: 100%;
+}
+.coverButtonContainer {
+    margin-top: 15px;
+    text-align: center;
+}
+.coverButtonContainer .coverButton {
+    background-color: rgba(51, 51, 51, 0.7);
+    border: 1px solid #181818;
+    border-radius: 5px;
+    color: #FFFFFF;
+    cursor: pointer;
+    font-family: Helvetica,Arial,sans-serif;
+    font-size: 13px;
+    font-weight: bold;
+    margin-left: 20px;
+    margin-right: 20px;
+    padding: 4px 8px;
+}
+.coverButtonContainer .coverButton a {
+    color: #FFFFFF;
+    font-family: Helvetica,Arial,sans-serif;
+    font-size: 13px;
+    font-weight: bold;
+}
+.coverButtonContainer a {
+    text-decoration: none;
+}
+
+#coverImage {
+    display: block;
+    margin: 0 auto 10px;
+    max-width: 150px;
+}
+
+#bookTitle {
+    font-size: 180%;
+    font-style: normal;
+    line-height: 1.1;
+    margin-bottom: 0;
+    width: 100%;
+}
+.bookTitle {
+    font-family: georgia,serif;
+    font-size: 120%;
+}
+
+
+
+
+#description, #details {
+    border-bottom: 1px solid #DDDDDD;
+    padding-bottom: 10px;
+}
+#details {
+    color: #555555;
+    font-size: 95%;
+    padding-bottom: 5px;
+}
+#description {
+    line-height: 1.4;
+}
+#description .floatingBox {
+    left: 15%;
+}
+#description p {
+    font-size: 14px;
+
+}
+
+.row1 {
+    margin-bottom: 5px;
+    font-size: 75%;
+}
+
+.readable {
+    font-family: Arial AMU, Georgia,serif;
+   // font-size: 115%;
+}
+.readable, .readable p, .readable ol, .readable ul, .readable td, .readable th {
+    line-height: 1.4;
+}
+.readable .uitext a, .readable a.uitext, .readable .actionLinkLite a, .readable a.actionLinkLite {
+    font-size: 12px;
+}
+
+.uitext, .uitext th, .uitext td, .uitext ul, .uitext ol, .uitext li {
+    font-family: Arial AMU,Helvetica,Verdana,sans-serif;
+}
