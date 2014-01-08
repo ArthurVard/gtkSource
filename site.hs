@@ -38,7 +38,7 @@ main = do
     match "templates/*" $ compile templateCompiler
 
     -- copy static assets
-    let assets = ["images/*", "CNAME"]
+    let assets = ["images/*", "images/books/*",  "CNAME"]
 
     match (foldr1 (.||.) assets) $ do
         route   idRoute
@@ -126,6 +126,7 @@ main = do
         route $ customRoute $ (processPagesRoute "shtemaran") .  toFilePath 
         compile $ pandocCompiler
             >>= saveSnapshot "content"
+            >>= loadAndApplyTemplate "templates/book.html"   (makePageCtx shtemaranTags)
             >>= loadAndApplyTemplate "templates/page.html"   (makePageCtx shtemaranTags)
             >>= loadAndApplyTemplate "templates/shtemaran.html"   (makeUnifiedCtx shtemaranTags)
             >>= loadAndApplyTemplate "templates/base.html" (makeBasePageCtx year)
@@ -378,7 +379,7 @@ indexNavLink n d maxn = renderHtml ref
               else H.a ! A.href (toValue $ toUrl $ refPage) $
                    (H.preEscapedToMarkup lab)
         lab :: String
-        lab = if (d > 0) then "&laquo; Հին" else "Նոր &raquo;"
+        lab = if (d > 0) then "&laquo; Նախորդ" else "Հաջորդ &raquo;"
         refPage = if (n + d < 1 || n + d > maxn) then ""
                   else case (n + d) of
                     1 -> "/index.html"
@@ -426,7 +427,7 @@ postAdvancedCtx t = do
     tagCloudCtx t `mappend`
     functionField "readmore" readMoreField `mappend`
     functionField "pagetitle" pageTitle `mappend`
-    dateField "date" "%B %e, %Y" `mappend`
+    dateField "date" "%Y-%m-%d" `mappend`
     defaultContext
   where prettify "" = ""
         prettify s = "<div class=\"tags\">" ++ s ++ "</div>"
@@ -517,14 +518,14 @@ makeUnifiedCtx tags = mconcat
 
 postCtx :: Context String
 postCtx =
-    dateField "date" "%B %e, %Y" `mappend`
+    dateField "date"  "%Y-%m-%d"  `mappend`
     constField "title" "tt" `mappend`
     defaultContext
 
 -- | Creates the default post context used by pages with posts/post listings
 defaultPostCtx :: Tags -> Context String
 defaultPostCtx tags = mconcat
-  [ dateField "date" "%B %e, %Y"
+  [ dateField "date"  "%Y-%m-%d"
   , tagsField "tags" tags
   , defaultContext
   ]
@@ -614,6 +615,14 @@ feedConfiguration = FeedConfiguration
     , feedRoot        = "http://gtk.am"
     }
 
+
+dateTranslation s  = unwords $  (monthToArm x) : xs
+   where
+     (x:xs) =  words s
+
+monthToArm :: String -> String
+monthToArm "December" = "Դեկտեմբեր"
+monthToArm x = x
 
 armToLat :: Char -> [Char]
 
