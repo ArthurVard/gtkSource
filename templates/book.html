@@ -4,20 +4,21 @@
     <div id="imagecol" class="col">
       <div class="bookCoverContainer">
 	<div class="bookCoverPrimary">
-	  <a rel="nofollow" itemprop="image" href="/book/photo/10638.The_Road_to_Reality">
+	  <a rel="nofollow" itemprop="image"
+ href="$pdfUrl$" target="_blank">
 	    <img id="coverImage" src="/images/books/$image$.jpg" alt="AAAa">
 	  </a>
 	</div>
 	<div class="bookCoverActions" style="display: none;">
 	  <div class="coverButtonContainer">
 	    <div class="coverButton">
-	      <a href="https://www.goodreads.com/work/editions/1077395-the-road-to-reality-a-complete-guide-to-the-laws-of-the-universe">Other editions</a>
+	      <a href="#">Other editions</a>
 	    </div>
 	  </div>
 	  <div class="coverButtonContainer">
 	    <div id="edition_10638_enlarge" class="coverButton enlargeCover"> Enlarge cover </div>
 	    <div id="edition_10638_enlarge_cover" class="editionCover" style="display: none;">
-	      <img src="https://d202m5krfqbpi5.cloudfront.net/books/1386924912l/10638.jpg" alt="10638">
+	      <img src="#" alt="10638">
 	    </div>
 	  </div>
 	</div>
@@ -25,34 +26,36 @@
     </div>
     
     <div id="metacol" class="last col">
+     <a href="$pdfUrl$" target="_blank">
       <h1 itemprop="name" class="bookTitle" id="bookTitle"> $title$</h1>
-
+     </a>
+<br>
       <div id="description" class="readable stacked" style="right:0">
-	<span id="freeTextContainer7498062787604077716">
-	  Roger Penrose, one of the most accomplished scientists of our time, presents the only comprehensive and comprehensible account of the physics of the universe. From the very first attempts by the Greeks to grapple with the complexities of our known world to the latest application of infinity in physics,
-	  <em>The Road to Reality</em>
-	  carefully explores the movement of the smallest ato
-	  <a class="actionLinkLite" onclick="updateMoreLink('7498062787604077716'); return false;" href="#">...more</a>
+	<span>
+
+        $if(description)$
+	 $description$
+	$endif$
 	</span>
       </div>
 
       <div id="details" class="uitext stacked darkGreyText">
 	<div class="row1">
-	  <span itemprop="bookFormatType">Paperback</span>
+	  <span itemprop="bookFormatType">փափուկ կազմ</span>
 	  ,
-	  <span itemprop="numberOfPages">1136 pages</span>
+	  <span itemprop="numberOfPages">$pages$ Էջ</span>
 	</div>
-	<div class="row1">
-	  Published January 9th 2007 by Vintage
-	  <nobr class="greyText"> (first published 2004) </nobr>
+	<!--	<div class="row1">
+		Published January 9th 2007 by Vintage
+		<nobr class="greyText"> (first published 2004) </nobr>
 	</div>
 
 
-	<!-- <div class="buttons">
-	     
-	     <a id="bookDataBoxShow" class="left inter actionLinkLite"
-		href="#" style="display: block;">more details...</a>
-	     
+	<div class="buttons">
+	  
+	  <a id="bookDataBoxShow" class="left inter actionLinkLite"
+	     href="#" style="display: block;">more details...</a>
+	  
 	</div>
 	-->
 	

@@ -1,8 +1,11 @@
 ---
 title:  «Ռուսաց լեզու» - մաս Ա (2014) 
-tags: ռուսացլեզու, շտեմարան2013-2014, մասԱ, շտեմարան
+tags: ռուսաց լեզու, շտեմարան2013-2014, մասԱ, շտեմարան
 date: 2012-10-28
 image: russian2013-1
+description: 
+pages: 440
+pdfUrl: http://atc.am/files/shtemaranner/2013_2014/SHTEMARAN-I-2013%20rusac%20Last.pdf
 ---
 
 
