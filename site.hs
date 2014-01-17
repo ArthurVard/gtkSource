@@ -126,14 +126,14 @@ main = do
         route $ customRoute $ (processPagesRoute "shtemaran") .  toFilePath 
         compile $ pandocCompiler
             >>= saveSnapshot "content"
-            >>= loadAndApplyTemplate "templates/book.html"   (makePageCtx shtemaranTags)
+            >>= loadAndApplyTemplate "templates/book.html"   (makePageCtx shtemaranTags) 
             >>= loadAndApplyTemplate "templates/page.html"   (makePageCtx shtemaranTags)
             >>= loadAndApplyTemplate "templates/shtemaran.html"   (makeUnifiedCtx shtemaranTags)
             >>= loadAndApplyTemplate "templates/base.html" (makeBasePageCtx year)
             >>= relativizeUrls   
 
 
-   -- render news
+    -- render news
     match "pages/news/*/*.markdown" $ do
         route $ customRoute $ (processPagesRoute "news") .  toFilePath 
         compile $ pandocCompiler
@@ -412,11 +412,10 @@ shtemaranCompiler subject baseCtx shtemaranTags year = do
                     defaultContext
 
             makeItem ""
-                >>= loadAndApplyTemplate "templates/shtemaran-list.html" archiveCtx
-                >>= loadAndApplyTemplate "templates/shtemaran.html"   (makeUnifiedCtx shtemaranTags)
-                >>= loadAndApplyTemplate "templates/base.html" (makeBasePageCtx year)
-                >>= relativizeUrls
-
+                 >>= loadAndApplyTemplate "templates/shtemaran-list.html" archiveCtx
+                 >>= loadAndApplyTemplate "templates/shtemaran.html"   (makeUnifiedCtx shtemaranTags)
+                 >>= loadAndApplyTemplate "templates/base.html" (makeBasePageCtx year)
+                 >>= relativizeUrls
 -- | Full context for posts.
 --
 postAdvancedCtx :: MonadMetadata m => Tags -> m (Context String)
@@ -466,7 +465,7 @@ tagCloudCtx tags = field "tagcloud" $ \item -> rendered
   where rendered = renderTagCloud 85.0 165.0 tags--}
 
 tagCloudCtx' :: String -> Tags -> Context String
-tagCloudCtx' tagHolderName = tagCloudFieldWith tagHolderName  makeLink (intercalate " ") 100 200
+tagCloudCtx' tagHolderName = tagCloudFieldWith tagHolderName  makeLink (intercalate " ") 50 135
   where
     makeLink minSize maxSize tag url count min' max' = renderHtml $
         H.span ! A.class_ "tagcloud" !
