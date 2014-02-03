@@ -5,7 +5,7 @@ date: 2013-11-15
 image: armenian2013-1
 description: 
 pages: 320
-pdfUrl: http://atc.am/files/shtemaranner/2013_2014/NOR%20I%20_27_09_13_forsite.pdf
+pdfUrl: http://atc.am/files/shtemaranner/2013_2014/HayocLezu_I_2014.pdf
 ---
 
 

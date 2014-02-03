@@ -5,7 +5,7 @@ date: 2012-10-28
 image: geography2013-1
 description: 
 pages: 416
-pdfUrl: http://atc.am/files/shtemaranner/2013_2014/Ashxarhagrutyun%20pdf.pdf
+pdfUrl: http://atc.am/files/shtemaranner/2013_2014/Ashxarhagrutyun.pdf
 ---
 
 

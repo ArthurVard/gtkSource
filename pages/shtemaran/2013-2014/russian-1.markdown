@@ -5,7 +5,7 @@ date: 2012-10-28
 image: russian2013-1
 description: 
 pages: 440
-pdfUrl: http://atc.am/files/shtemaranner/2013_2014/SHTEMARAN-I-2013%20rusac%20Last.pdf
+pdfUrl: http://atc.am/files/shtemaranner/2013_2014/Rusac_Lezu_I.pdf
 ---
 
 
