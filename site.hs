@@ -20,6 +20,7 @@ import qualified Data.Map as M
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 import           Hakyll
+import           GHC.IO.Encoding
 --------------------------------------------------------------------------------
 
 -- | Number of news teasers displayed per sorted index page.
@@ -32,6 +33,9 @@ main :: IO ()
 main = do
    -- get the current year from the system time before entering the Rules monad
    year <- getCurrentYear
+   setLocaleEncoding utf8
+   setFileSystemEncoding utf8
+   setForeignEncoding utf8
    hakyll $ do
 
     -- compile templates
